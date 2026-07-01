@@ -86,7 +86,23 @@ SWUI.RegisterPage("store", function(parent)
 
     Icon:SetModel("models/Items/BoxMRounds.mdl")
 
-    function Icon:LayoutEntity()
+    function Icon:LayoutEntity(ent)
+
+        ent:SetAngles(Angle(0, RealTime() * 20 % 360, 0))
+
+    end
+
+    function Icon:PostDrawModel(ent)
+
+        local mn, mx = ent:GetRenderBounds()
+
+        local center = (mn + mx) * 0.5
+        local size = (mx - mn):Length()
+
+        local dist = math.Clamp(size * 0.7, 18, 90)
+
+        self:SetLookAt(center)
+        self:SetCamPos(center + Vector(dist, dist, dist * 0.3))
 
     end
 
@@ -407,11 +423,14 @@ SWUI.RegisterPage("store", function(parent)
         function Model:PostDrawModel(ent)
 
             local mn, mx = ent:GetRenderBounds()
+
             local center = (mn + mx) * 0.5
-            local radius = (mx - mn):Length()
+            local size = (mx - mn):Length()
+
+            local dist = math.Clamp(size * 0.7, 18, 90)
 
             self:SetLookAt(center)
-            self:SetCamPos(center + Vector(radius, radius, radius * 0.35))
+            self:SetCamPos(center + Vector(dist, dist, dist * 0.3))
 
         end
 
