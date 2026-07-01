@@ -1,0 +1,13 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/SW_Battlefront/Weapons/Z6RC/t_z6rotary_cs"
+	"$bumpmap" "models/SW_Battlefront/Weapons/Z6RC/t_z6rotary_nam"
+	"$color2"	"[1 1 1]"
+	"$blendTintByBaseAlpha"	"1"
+
+	"$phongexponenttexture"	"models/SW_Battlefront/Weapons/Z6RC/t_z6rotary_ex"
+	"$phongalbedotint" 1
+	"$phong" "1"
+	"$phongboost"	"0.5"
+	"$phongfresnelranges"	"[0.5 0.5 0.5]"
+}

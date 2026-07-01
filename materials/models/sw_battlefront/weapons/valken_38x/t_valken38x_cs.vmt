@@ -1,0 +1,13 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/SW_Battlefront/Weapons/Valken_38x/t_valken38x_cs"
+	"$bumpmap" "models/SW_Battlefront/Weapons/Valken_38x/t_valken38x_nam"
+	"$color2"	"[2 2 2]"
+	"$blendTintByBaseAlpha"	"1"
+
+	"$phongexponenttexture"	"models/SW_Battlefront/Weapons/Valken_38x/t_valken38x_exp"
+	"$phongalbedotint" 1
+	"$phong" "1"
+	"$phongboost"	"0.5"
+	"$phongfresnelranges"	"[0.5 0.5 0.5]"
+}

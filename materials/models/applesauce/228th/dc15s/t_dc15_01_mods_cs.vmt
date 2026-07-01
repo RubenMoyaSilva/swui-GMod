@@ -1,0 +1,14 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models\applesauce\228th\dc15s/t_dc15_01_mods_cs"
+	"$bumpmap" "models\applesauce\228th\dc15s/t_dc15_01_mods_nam"
+	"$color2"	"[1 1 1]"
+	"$blendTintByBaseAlpha"	"1"
+
+	"$phongexponenttexture"	"models\applesauce\228th\dc15s/t_dc15_01_mods_exp"
+	"$phongalbedotint" 1
+	"$phong" "1"
+	"$phongboost"	"0.5"
+	"$phongfresnelranges"	"[0.5 0.5 0.5]"
+
+}

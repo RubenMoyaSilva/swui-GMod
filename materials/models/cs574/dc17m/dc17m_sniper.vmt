@@ -1,0 +1,11 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cs574/dc17m/dc17m_sniper"
+	"$bumpmap" "models/cs574/dc17m/dc17m_sniper_nm"
+	
+	"$color2"	"[1.25 1.25 1.25]"
+	"$blendTintByBaseAlpha"	"1"
+	"$phong" "1"
+	"$phongboost"	"0"
+	"$phongfresnelranges"	"[0.5 0.5 0.5]"
+}

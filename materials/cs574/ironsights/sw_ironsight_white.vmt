@@ -1,0 +1,17 @@
+"Unlittwotexture"
+{
+	$basetexture  	"cs574\ironsights\sw_ironsight_white"
+	$texture2 		"cs574\ironsights\sw_noise"
+	$additive  		1
+	$translucent 	1
+
+	"Proxies"
+	{
+		"TextureScroll"
+		{
+			"texturescrollvar" $texture2transform 
+			"texturescrollrate" 10
+			"texturescrollangle" 90
+		}
+	}
+}

@@ -1,0 +1,7 @@
+"VertexlitGeneric"
+{
+	$basetexture "fisher\dc17s/dc17s2_cs"
+	
+	$selfillum 1
+	$selfillummask "fisher\dc17s/dc17s2_cs"
+}

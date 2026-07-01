@@ -1,0 +1,5 @@
+"VertexLitGeneric"
+{
+	$basetexture 				"models\weapons\synbf3\w_models\nodraw"
+	$additive  		1
+}

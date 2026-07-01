@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+    "$basetexture" "swui/icons/clock"
+    "$translucent" 1
+}

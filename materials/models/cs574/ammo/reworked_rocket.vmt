@@ -1,0 +1,12 @@
+"VertexlitGeneric"
+{
+	$basetexture "models/cs574/ammo/vtf/reworked_rocket"
+	$bumpmap "models/cs574/ammo/vtf/reworked_rocket_nm"
+	$color2 "[1 1 1]"
+	
+	$phong 1
+	$phongboost	"0.5"
+    $phongfresnelranges "[0.5 0.5 0.5]"
+    $phongexponenttexture "models/cs574/ammo/vtf/reworked_rocket_ex"
+	$nocull 1
+}

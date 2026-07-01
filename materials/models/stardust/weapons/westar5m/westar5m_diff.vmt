@@ -1,0 +1,13 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/Stardust/weapons/westar5m/westar5m_diff1"
+	"$bumpmap" "models/Stardust/weapons/westar5m/westar5m_normal"
+	"$color2" "[ 1.5 1.5 1.5 ]"
+	
+	$phong 1
+    $phongfresnelranges "[0.5 0.5 0.5]"
+	$phongboost	"0.5"
+	$PhongAlbedoTint 1
+	$halflambert 1 
+	$nocull 1
+}

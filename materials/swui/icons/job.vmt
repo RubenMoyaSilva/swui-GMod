@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+    "$basetexture" "swui/icons/job"
+    "$translucent" 1
+}

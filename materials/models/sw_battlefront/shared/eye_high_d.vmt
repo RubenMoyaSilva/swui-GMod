@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/Arkham_Origins/Characters/Batman/Dark_Knight_Suit/Eye_high_D"
+	"$bumpmap" "models/Arkham_Origins/shared/flat_normal"
+}

@@ -1,0 +1,6 @@
+"UnlitGeneric"
+{
+	"$basetexture" "cs574/tracers/rw_sw_laser_f_black"
+	"$additive" 1
+	"$vertexcolor" 1
+}

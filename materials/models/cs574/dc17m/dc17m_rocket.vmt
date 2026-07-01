@@ -1,0 +1,16 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/cs574/dc17m/dc17m_rocket"
+	"$bumpmap" "models/cs574/dc17m/dc17m_rocket_nm"
+	
+	"$color2"	"[0.5 0.5 0.5]"
+	"$blendTintByBaseAlpha"	"1"
+	"$phong" "1"
+	"$phongboost"	"0"
+	"$phongfresnelranges"	"[0.5 0.5 0.5]"
+
+    "$detail" "models/cs574/dc17m/dc17m_rocket_em"
+    "$detailblendmode" "6"
+    "$detailblendfactor" "1"
+    "$detailscale" "1"
+}

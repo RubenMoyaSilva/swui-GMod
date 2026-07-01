@@ -1,0 +1,11 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/SW_Battlefront/Weapons/t_scopelens_01_c"
+	"$bumpmap" "models/SW_Battlefront/Weapons/t_scopelens_01_n"
+
+	"$phongalbedotint" 0
+	"$phongexponent"	"255"
+	"$phong" "1"
+	"$phongboost"	"3"
+	"$phongfresnelranges"	"[1 1.05 1.25]"
+}

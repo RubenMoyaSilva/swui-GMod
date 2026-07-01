@@ -1,0 +1,5 @@
+"UnlitGeneric"
+{
+    "$basetexture" "swui/icons/deaths"
+    "$translucent" 1
+}

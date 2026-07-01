@@ -1,0 +1,13 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/SW_Battlefront/Weapons/DC15A/t_dc15_01_mods_cs"
+	"$bumpmap" "models/SW_Battlefront/Weapons/DC15A/t_dc15_01_mods_nam"
+	"$color2"	"[1 1 1]"
+	"$blendTintByBaseAlpha"	"1"
+
+	"$phongexponenttexture"	"models/SW_Battlefront/Weapons/DC15A/t_dc15_01_mods_exp"
+	"$phongalbedotint" 1
+	"$phong" "1"
+	"$phongboost"	"0.5"
+	"$phongfresnelranges"	"[0.5 0.5 0.5]"
+}

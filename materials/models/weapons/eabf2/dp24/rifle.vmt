@@ -1,0 +1,13 @@
+"VertexLitGeneric"
+{
+	"$basetexture" "models/weapons/eabf2/dp24/carbine"
+	"$bumpmap" "models/weapons/eabf2/dp24/carbine_n"
+	"$blendTintByBaseAlpha"	"1"
+	"$color2"	"[0.8 0.8 0.8]"
+	"$phongalbedotint" 1
+	"$phong" "1"
+	"$phongboost"	"0.15"
+
+	"$basealphaenvmapmask"	"1"
+	"$phongfresnelranges"	"[3 3.05 3.25]"
+}

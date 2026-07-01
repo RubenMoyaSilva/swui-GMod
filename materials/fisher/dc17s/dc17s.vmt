@@ -1,0 +1,12 @@
+"VertexlitGeneric"
+{
+	$basetexture "fisher\dc17s/dc17s_cs"
+	$bumpmap "fisher\dc17s/dc17s_nm"
+	
+	$phong 1
+    $phongfresnelranges "[0.5 0.5 0.5]"
+	$phongboost	"0.5"
+	$PhongAlbedoTint 1
+	$halflambert 1 
+	$nocull 1
+}
