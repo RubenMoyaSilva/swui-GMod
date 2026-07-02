@@ -4,23 +4,31 @@
     Proyecto Kamino
     ---------------------------------------------------------
 ]] SWUI = SWUI or {}
-
 SWUI.Store = {}
 
 ---------------------------------------------------------
 -- Constructores
 ---------------------------------------------------------
 
-local function Preview(model, camPos, lookAt, fov)
+local function Preview(model, camPos, lookAt, fov, image, angle, zoom, material)
+
     return {
         Model = model,
         CamPos = camPos,
         LookAt = lookAt,
-        FOV = fov
+        FOV = fov,
+        Image = image,
+
+        Angle = angle or Angle(0, 0, 0),
+        Zoom = zoom or 1,
+
+        Material = material
     }
+
 end
 
 local function Stats(damage, fireRate, accuracy, range, mobility)
+
     return {
         Damage = damage,
         FireRate = fireRate,
@@ -28,673 +36,322 @@ local function Stats(damage, fireRate, accuracy, range, mobility)
         Range = range,
         Mobility = mobility
     }
+
+end
+
+local function ApplyCompatibility(item)
+
+    if item.Preview then
+        item.Model = item.Preview.Model
+        item.Image = item.Image or item.Preview.Image
+
+        item.Angle = item.Preview.Angle
+        item.Zoom = item.Preview.Zoom
+        item.Material = item.Preview.Material
+
+        item.Skin = item.Preview.Skin
+        item.Material = item.Preview.Material
+    end
+
+    if item.Stats then
+        item.Damage = item.Stats.Damage
+        item.FireRate = item.Stats.FireRate
+        item.Accuracy = item.Stats.Accuracy
+        item.Range = item.Stats.Range
+        item.Mobility = item.Stats.Mobility
+    end
+
+    return item
+
+end
+
+local function StoreItem(item)
+
+    item.Stats = item.Stats or Stats(0, 0, 0, 0, 0)
+
+    return ApplyCompatibility(item)
+
+end
+
+local function WeaponItem(item)
+
+    local class = item.Class
+
+    item.Category = item.Category or "weapons"
+    item.Delivery = {
+        Type = "weapon",
+        Class = class
+    }
+
+    item.CanBuy = item.CanBuy or function(ply)
+
+        return not ply:HasWeapon(class)
+
+    end
+
+    item.OnBuy = item.OnBuy or function(ply)
+
+        ply:Give(class)
+
+    end
+
+    return StoreItem(item)
+
+end
+
+local function AmmoItem(item, ammoType, amount)
+
+    item.Category = item.Category or "ammo"
+    item.Class = nil
+    item.Delivery = {
+        Type = "ammo",
+        AmmoType = ammoType,
+        Amount = amount
+    }
+
+    item.CanBuy = item.CanBuy or function()
+
+        return true
+
+    end
+
+    item.OnBuy = item.OnBuy or function(ply)
+
+        ply:GiveAmmo(amount, ammoType, true)
+
+    end
+
+    return StoreItem(item)
+
 end
 
 ---------------------------------------------------------
--- Categorías
+-- Categorias
 ---------------------------------------------------------
 
 SWUI.Store.Categories = {{
     ID = "ammo",
-    Name = "Munición"
+    Name = "Munición",
+    SortOrder = 1
 }, {
     ID = "weapons",
-    Name = "Armamento"
+    Name = "Armamento",
+    SortOrder = 2
 }, {
     ID = "medical",
-    Name = "Medicina"
+    Name = "Medicina",
+    SortOrder = 3
 }, {
     ID = "equipment",
-    Name = "Equipamiento"
+    Name = "Equipamiento",
+    SortOrder = 4
 }}
 
 ---------------------------------------------------------
 -- Objetos
 ---------------------------------------------------------
 
-SWUI.Store.Items = { -----------------------------------------------------
--- Munición DC-15A
------------------------------------------------------
-{
-
+SWUI.Store.Items = {AmmoItem({
     ID = "dc15a_ammo",
-
     Name = "Munición DC-15A",
-
-    Category = "ammo",
-
     Price = 150,
-
-    -----------------------------------------------------
-    -- Información
-    -----------------------------------------------------
-
-    Class = nil,
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Munición",
-
-    Damage = 0,
-
-    FireRate = 0,
-
-    Accuracy = 0,
-
-    Range = 0,
-
-    Mobility = 0,
-
+    Preview = Preview("models/Items/BoxMRounds.mdl", Vector(45, 45, 30), Vector(0, 0, 6), 28,
+        "entities/tfa_ammo_special - copy"),
+    Stats = Stats(0, 0, 0, 0, 0),
     Description = [[
-    Caja de munición estándar para los
-    fusiles bláster DC-15A.
+Caja de munición estándar para los fusiles bláster DC-15A.
 
-    Contiene 120 proyectiles.
-    ]],
-
-    -----------------------------------------------------
-
-    CanBuy = function(ply)
-
-        return true
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:GiveAmmo(120, "AR2", true)
-
-    end
-
-}, -----------------------------------------------------
--- Munición DC-15S
------------------------------------------------------
-{
-
+Contiene 120 proyectiles.
+]]
+}, "AR2", 120), AmmoItem({
     ID = "dc15s_ammo",
-
     Name = "Munición DC-15S",
-
-    Category = "ammo",
-
     Price = 100,
-
-    -----------------------------------------------------
-    -- Información
-    -----------------------------------------------------
-
-    Class = nil,
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Munición",
-
-    Damage = 0,
-
-    FireRate = 0,
-
-    Accuracy = 0,
-
-    Range = 0,
-
-    Mobility = 0,
-
+    Preview = Preview("models/Items/BoxMRounds.mdl", Vector(45, 45, 30), Vector(0, 0, 6), 28,
+        "entities/tfa_ammo_special - copy"),
+    Stats = Stats(0, 0, 0, 0, 0),
     Description = [[
-    Caja de munición estándar para las
-    carabinas DC-15S.
+Caja de munición estándar para las carabinas DC-15S.
 
-    Contiene 90 proyectiles.
-    ]],
-
-    -----------------------------------------------------
-
-    CanBuy = function(ply)
-
-        return true
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:GiveAmmo(90, "SMG1", true)
-
-    end
-
-}, -----------------------------------------------------
--- DC-17
------------------------------------------------------
-{
-
+Contiene 90 proyectiles.
+]]
+}, "SMG1", 90), WeaponItem({
     ID = "dc17",
-
     Name = "DC-17",
-
-    Category = "weapons",
-
     Price = 250,
-
-    -----------------------------------------------------
-    -- Información
-    -----------------------------------------------------
-
     Class = "rw_sw_dc17",
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Pistola Bláster",
-
-    Damage = 4,
-
-    FireRate = 9,
-
-    Accuracy = 8,
-
-    Range = 6,
-
-    Mobility = 10,
-
+    Preview = Preview("models/sw_battlefront/weapons/dc17_blaster.mdl", Vector(30, -8, 2), Vector(0, 2, 0), 35,
+        "entities/rw_sw_dc17", Angle(2, 25, 2), 0.85),
+    Stats = Stats(4, 9, 8, 6, 10),
     Description = [[
-    Pistola bláster ligera utilizada por
-    oficiales, pilotos y tropas especializadas.
+Pistola bláster ligera utilizada por oficiales, pilotos y tropas especializadas.
 
-    Excelente como arma secundaria gracias
-    a su alta cadencia y movilidad.
-    ]],
-
-    -----------------------------------------------------
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_dc17")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_dc17")
-
-    end
-
-}, -----------------------------------------------------
--- DC-15LE
------------------------------------------------------
-{
-
+Excelente como arma secundaria gracias a su alta cadencia y movilidad.
+]]
+}), WeaponItem({
     ID = "dc15le",
-
     Name = "DC-15LE",
-
-    Category = "weapons",
-
     Price = 1000,
-
     Class = "rw_sw_dc15le",
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Fusil Bláster",
-
-    Damage = 7,
-
-    FireRate = 7,
-
-    Accuracy = 9,
-
-    Range = 8,
-
-    Mobility = 7,
-
+    Preview = Preview("models/sw_battlefront/weapons/dc15a_rifle.mdl", Vector(30, -8, 2), Vector(0, 2, 2), 35,
+        "entities/rw_sw_dc15le", Angle(2, 25, 2), 0.85),
+    Stats = Stats(7, 7, 9, 8, 7),
     Description = [[
-    Versión de precisión del fusil DC-15.
+Versión de precisión del fusil DC-15.
 
-    Muy estable a media y larga distancia.
-    ]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_dc15le")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_dc15le")
-
-    end
-
-}, -----------------------------------------------------
--- DC-19
------------------------------------------------------
-{
-
+Muy estable a media y larga distancia.
+]]
+}), WeaponItem({
     ID = "dc19",
-
     Name = "DC-19",
-
-    Category = "weapons",
-
     Price = 1250,
-
     Class = "rw_sw_dc19",
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Carabina Bláster",
-
-    Damage = 6,
-
-    FireRate = 8,
-
-    Accuracy = 8,
-
-    Range = 7,
-
-    Mobility = 8,
-
+    Preview = Preview("models/player/applesauce/228th/dc15s_carbine.mdl", Vector(30, -8, 2), Vector(0, 2, 2), 35,
+        "entities/rw_sw_dc19", Angle(2, 25, 2), 0.85),
+    Stats = Stats(6, 8, 8, 7, 8),
     Description = [[
 Carabina bláster compacta.
 
-Excelente equilibrio entre movilidad
-y potencia de fuego.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_dc19")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_dc19")
-
-    end
-
-}, -----------------------------------------------------
--- DC-19LE
------------------------------------------------------
-{
-
+Excelente equilibrio entre movilidad y potencia de fuego.
+]]
+}), WeaponItem({
     ID = "dc19le",
-
     Name = "DC-19LE",
-
-    Category = "weapons",
-
     Price = 1800,
-
     Class = "rw_sw_dc19le",
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Carabina Bláster",
-
-    Damage = 8,
-
-    FireRate = 8,
-
-    Accuracy = 8,
-
-    Range = 8,
-
-    Mobility = 7,
-
+    Preview = Preview("models/player/applesauce/228th/dc15s_carbine.mdl", Vector(30, -8, 2), Vector(0, 2, 2), 35,
+        "entities/rw_sw_dc19le", Angle(2, 25, 2), 0.85),
+    Stats = Stats(8, 8, 8, 8, 7),
     Description = [[
 Versión mejorada de la DC-19.
 
 Mayor potencia y precisión.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_dc19le")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_dc19le")
-
-    end
-
-}, -----------------------------------------------------
--- WESTAR M5
------------------------------------------------------
-{
-
+]]
+}), WeaponItem({
     ID = "westarm5",
-
     Name = "WESTAR M5",
-
-    Category = "weapons",
-
     Price = 2200,
-
     Class = "rw_sw_westarm5",
-
     Manufacturer = "MandalMotors",
-
     Type = "Fusil Bláster",
-
-    Damage = 8,
-
-    FireRate = 7,
-
-    Accuracy = 8,
-
-    Range = 8,
-
-    Mobility = 8,
-
+    Preview = Preview("models/sw_battlefront/weapons/westar_m5_blaster_rifle.mdl", Vector(30, -8, 2), Vector(0, 2, 0),
+        35, "entities/rw_sw_westarm5", Angle(2, 25, 2), 0.85),
+    Stats = Stats(8, 7, 8, 8, 8),
     Description = [[
 Fusil bláster de origen mandaloriano.
 
 Muy apreciado por su fiabilidad.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_westarm5")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_westarm5")
-
-    end
-
-}, -----------------------------------------------------
--- DP-23
------------------------------------------------------
-{
-
+]]
+}), WeaponItem({
     ID = "dp23",
-
     Name = "DP-23",
-
-    Category = "weapons",
-
     Price = 2500,
-
     Class = "rw_sw_dp23",
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Escopeta Bláster",
-
-    Damage = 10,
-
-    FireRate = 4,
-
-    Accuracy = 5,
-
-    Range = 3,
-
-    Mobility = 6,
-
+    Preview = Preview("models/cs574/weapons/dp23.mdl", Vector(30, -8, 2), Vector(0, 2, 0), 35, "entities/rw_sw_dp23"),
+    Angle(2, 25, 2),
+    0.85,
+    Stats = Stats(10, 4, 5, 3, 6),
     Description = [[
 Escopeta bláster de combate.
 
-Devastadora a corta distancia,
-aunque pierde eficacia rápidamente
-a medida que aumenta la distancia.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_dp23")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_dp23")
-
-    end
-
-}, -----------------------------------------------------
--- DP-24
------------------------------------------------------
-{
-
+Devastadora a corta distancia, aunque pierde eficacia rápidamente a medida que aumenta la distancia.
+]]
+}), WeaponItem({
     ID = "dp24",
-
     Name = "DP-24",
-
-    Category = "weapons",
-
     Price = 3000,
-
     Class = "rw_sw_dp24",
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Escopeta Bláster",
-
-    Damage = 10,
-
-    FireRate = 5,
-
-    Accuracy = 6,
-
-    Range = 4,
-
-    Mobility = 6,
-
+    Preview = Preview("models/cs574/weapons/dp24.mdl", Vector(30, -8, 2), Vector(0, 2, 0), 35, "entities/rw_sw_dp24"),
+    Angle(2, 25, 2),
+    0.85,
+    Stats = Stats(10, 5, 6, 4, 6),
     Description = [[
 Versión mejorada de la DP-23.
 
-Mayor estabilidad y mejor alcance
-manteniendo una enorme potencia
-a corta distancia.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_dp24")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_dp24")
-
-    end
-
-}, -----------------------------------------------------
--- DC-17M
------------------------------------------------------
-{
-
+Mayor estabilidad y mejor alcance manteniendo una enorme potencia a corta distancia.
+]]
+}), WeaponItem({
     ID = "dc17m",
-
     Name = "DC-17M",
-
-    Category = "weapons",
-
     Price = 4000,
-
     Class = "rw_sw_dc17m",
-
     Manufacturer = "BlasTech Industries",
-
     Type = "Sistema Modular",
-
-    Damage = 9,
-
-    FireRate = 8,
-
-    Accuracy = 8,
-
-    Range = 8,
-
-    Mobility = 7,
-
+    Preview = Preview("models/fisher/extendeddc17/extendeddc17.mdl", Vector(30, -8, 2), Vector(0, 2, 0), 35,
+        "entities/rw_sw_dc17m", Angle(2, 25, 2), 0.85),
+    Stats = Stats(9, 8, 8, 8, 7),
     Description = [[
-Sistema de armas modular empleado
-por las unidades ARC.
+Sistema de armas modular empleado por las unidades ARC.
 
-Combina una gran potencia de fuego
-con una elevada precisión.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_dc17m")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_dc17m")
-
-    end
-
-}, -----------------------------------------------------
--- Binoculares Blancos
------------------------------------------------------
-{
-
+Combina una gran potencia de fuego con una elevada precisión.
+]]
+}), WeaponItem({
     ID = "bino_white",
-
     Name = "Binoculares Blancos",
-
     Category = "equipment",
-
     Price = 600,
-
     Class = "rw_sw_bino_white",
-
     Manufacturer = "Arakyd Industries",
-
     Type = "Óptica Militar",
 
-    Damage = 0,
+    Preview = Preview("models/nate159/swbf2015/pewpew/electrobinocular.mdl", Vector(30, -8, 2), Vector(0, 2, 0), 35,
+        "entities/rw_sw_bino_white", Angle(2, 25, 2), 0.85,
+        "anthonyfuller/macrobinoculars/t_electrobinocularstd23_c_white"),
 
-    FireRate = 0,
-
-    Accuracy = 0,
-
-    Range = 10,
-
-    Mobility = 10,
-
+    Stats = Stats(0, 0, 0, 10, 10),
     Description = [[
-Binoculares tácticos utilizados para
-reconocimiento y observación a larga
-distancia.
+Binoculares tácticos utilizados para reconocimiento y observación a larga distancia.
 
 Ideales para exploradores y oficiales.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_bino_white")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_bino_white")
-
-    end
-
-}, -----------------------------------------------------
--- Binoculares Negros
------------------------------------------------------
-{
-
+]]
+}), WeaponItem({
     ID = "bino_dark",
-
     Name = "Binoculares Negros",
-
     Category = "equipment",
-
     Price = 600,
-
     Class = "rw_sw_bino_dark",
-
     Manufacturer = "Arakyd Industries",
-
     Type = "Óptica Militar",
-
-    Damage = 0,
-
-    FireRate = 0,
-
-    Accuracy = 0,
-
-    Range = 10,
-
-    Mobility = 10,
-
+    Preview = Preview("models/nate159/swbf2015/pewpew/electrobinocular.mdl", Vector(30, -8, 2), Vector(0, 2, 0), 35,
+        "entities/rw_sw_bino_dark", Angle(2, 25, 2), 0.85,
+        "anthonyfuller/macrobinoculars/t_electrobinocularstd23_c_dark"),
+    Material = "anthonyfuller/macrobinoculars/t_electrobinocularstd23_c_dark",
+    Stats = Stats(0, 0, 0, 10, 10),
     Description = [[
-Versión oscura de los binoculares
-militares de la República.
+Versión oscura de los binoculares militares de la República.
 
-Ofrecen las mismas prestaciones con
-una estética diferente.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_bino_dark")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_bino_dark")
-
-    end
-
-}, -----------------------------------------------------
--- Binoculares Desierto
------------------------------------------------------
-{
-
+Ofrecen las mismas prestaciones con una estética diferente.
+]]
+}), WeaponItem({
     ID = "bino_desert",
-
     Name = "Binoculares Desierto",
-
     Category = "equipment",
-
     Price = 600,
-
     Class = "rw_sw_bino_desert",
-
     Manufacturer = "Arakyd Industries",
-
     Type = "Óptica Militar",
-
-    Damage = 0,
-
-    FireRate = 0,
-
-    Accuracy = 0,
-
-    Range = 10,
-
-    Mobility = 10,
-
+    Preview = Preview("models/nate159/swbf2015/pewpew/electrobinocular.mdl", Vector(30, -8, 2), Vector(0, 2, 0), 35,
+        "entities/rw_sw_bino_desert", Angle(2, 25, 2), 0.85, 0, ""),
+    Stats = Stats(0, 0, 0, 10, 10),
     Description = [[
 Binoculares con acabado desértico.
 
-Especialmente utilizados durante
-operaciones en planetas áridos.
-]],
-
-    CanBuy = function(ply)
-
-        return not ply:HasWeapon("rw_sw_bino_desert")
-
-    end,
-
-    OnBuy = function(ply)
-
-        ply:Give("rw_sw_bino_desert")
-
-    end
-
-}}
+Especialmente utilizados durante operaciones en planetas áridos.
+]]
+})}

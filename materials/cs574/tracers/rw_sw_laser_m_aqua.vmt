@@ -1,6 +1,0 @@
-"UnlitGeneric"
-{
-	"$basetexture" "cs574/tracers/rw_sw_laser_m_aqua"
-	"$additive" 1
-	"$vertexcolor" 1
-}

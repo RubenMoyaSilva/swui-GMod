@@ -88,11 +88,45 @@ SWUI.RegisterPage("store", function(parent)
 
     function Icon:LayoutEntity(ent)
 
-        ent:SetAngles(Angle(0, RealTime() * 20 % 360, 0))
+        local ang = Angle(0, RealTime() * 20 % 360, 0)
+
+        if SelectedItem and SelectedItem.Angle then
+            ang = ang + SelectedItem.Angle
+        end
+
+        ent:SetAngles(ang)
+
+        if SelectedItem then
+
+            local material = nil
+
+            if SelectedItem.Preview then
+                material = SelectedItem.Preview.Material
+            end
+
+            if (not material or material == "") and element.material and element.material ~= "" then
+                material = element.material
+            end
+
+            local skin = SelectedItem.Skin or 0
+
+            ent:SetSkin(skin)
+
+            if material and material ~= "" then
+                ent:SetMaterial(material)
+            else
+                ent:SetMaterial("")
+            end
+
+        end
 
     end
 
     function Icon:PostDrawModel(ent)
+
+        if SelectedItem and SelectedItem.Preview then
+            return
+        end
 
         local mn, mx = ent:GetRenderBounds()
 
@@ -105,7 +139,6 @@ SWUI.RegisterPage("store", function(parent)
         self:SetCamPos(center + Vector(dist, dist, dist * 0.3))
 
     end
-
     ---------------------------------------------------------
     -- Nombre
     ---------------------------------------------------------
@@ -254,91 +287,6 @@ SWUI.RegisterPage("store", function(parent)
 
     end
 
-    local ModelOverrides = {
-
-        rw_sw_dc17 = "models/sw_battlefront/weapons/dc17_blaster.mdl",
-        rw_sw_dc17m = "models/fisher/extendeddc17/extendeddc17.mdl",
-        rw_sw_dc15a = "models/sw_battlefront/weapons/dc15a_rifle.mdl",
-        rw_sw_dc15s = "models/sw_battlefront/weapons/dc15s_carbine.mdl",
-        rw_sw_westarm5 = "models/sw_battlefront/weapons/westar_m5_blaster_rifle.mdl"
-
-    }
-
-    local SearchFolders = {"models/cs574", "models/fisher", "models/player", "models/sw_battlefront", "models/swbf3",
-                           "models/weapons"}
-
-    local function SearchFolder(folder, search)
-
-        local files, dirs = file.Find(folder .. "/*", "GAME")
-
-        for _, fileName in ipairs(files) do
-
-            if string.GetExtensionFromFilename(fileName) == "mdl" then
-
-                local mdl = string.lower(string.StripExtension(fileName))
-
-                if mdl == search or string.find(mdl, search, 1, true) or string.find(search, mdl, 1, true) then
-
-                    return folder .. "/" .. fileName
-
-                end
-
-            end
-
-        end
-
-        for _, dir in ipairs(dirs) do
-
-            local result = SearchFolder(folder .. "/" .. dir, search)
-
-            if result then
-                return result
-            end
-
-        end
-
-    end
-
-    local function GetModel(class)
-
-        if not class then
-            return "models/Items/BoxMRounds.mdl"
-        end
-
-        if ModelOverrides[class] then
-            return ModelOverrides[class]
-        end
-
-        local name = string.lower(string.Replace(class, "rw_sw_", ""))
-        local aliases = {
-
-            dc19 = "e11",
-            dc19le = "e11",
-            dc15le = "dlt19",
-            bino_white = "binocular",
-            bino_dark = "binocular",
-            bino_desert = "binocular"
-
-        }
-
-        if aliases[name] then
-            name = aliases[name]
-        end
-
-        for _, folder in ipairs(SearchFolders) do
-
-            local mdl = SearchFolder(folder, name)
-
-            if mdl then
-                return mdl
-            end
-
-        end
-
-        return "models/Items/BoxMRounds.mdl"
-
-    end
-
     local function SelectItem(item)
 
         SelectedItem = item
@@ -348,11 +296,13 @@ SWUI.RegisterPage("store", function(parent)
         Manufacturer:SetText(item.Manufacturer or "")
         Type:SetText(item.Type or "")
 
-        Stats.Damage = item.Damage or 0
-        Stats.FireRate = item.FireRate or 0
-        Stats.Accuracy = item.Accuracy or 0
-        Stats.Range = item.Range or 0
-        Stats.Mobility = item.Mobility or 0
+        local stats = item.Stats or {}
+
+        Stats.Damage = stats.Damage or 0
+        Stats.FireRate = stats.FireRate or 0
+        Stats.Accuracy = stats.Accuracy or 0
+        Stats.Range = stats.Range or 0
+        Stats.Mobility = stats.Mobility or 0
 
         Price:SetText(string.format("%s créditos", string.Comma(item.Price or 0)))
 
@@ -373,8 +323,26 @@ SWUI.RegisterPage("store", function(parent)
         -- Modelo
         -----------------------------------------------------
 
-        Icon:SetModel(GetModel(item.Class or item.Model))
-        Icon:SetFOV(45)
+        if item.Preview then
+
+            local preview = item.Preview
+
+            Icon:SetModel(preview.Model)
+
+            local zoom = preview.Zoom or 1
+
+            Icon:SetCamPos(preview.CamPos * zoom)
+            Icon:SetLookAt(preview.LookAt)
+            Icon:SetFOV(preview.FOV or 45)
+
+        else
+
+            Icon:SetModel("models/Items/BoxMRounds.mdl")
+            Icon:SetCamPos(Vector(18, 18, 18))
+            Icon:SetLookAt(Vector(0, 0, 0))
+            Icon:SetFOV(45)
+
+        end
 
         Buy:SetEnabled(true)
 
@@ -384,43 +352,75 @@ SWUI.RegisterPage("store", function(parent)
 
         local Card = vgui.Create("SWCard", Grid)
 
-        Card:SetSize(180, 220)
+        Card:SetSize(235, 140)
         Card:SetTitle("")
         Card:SetCursor("hand")
 
         Card.Paint = function(self, w, h)
 
-            local bg = SWUI.Theme.Surface
+            local bg = Color(48, 48, 48)
 
             if SelectedItem == item then
-
-                bg = SWUI.Theme.AccentDark
-
+                bg = Color(80, 80, 80)
             elseif self:IsHovered() then
-
-                bg = Color(35, 55, 85)
-
+                bg = Color(65, 65, 65)
             end
 
-            draw.RoundedBox(8, 0, 0, w, h, bg)
+            surface.SetDrawColor(bg)
+            surface.DrawRect(0, 0, w, h)
 
-            surface.SetDrawColor(SWUI.Theme.Border)
-            surface.DrawOutlinedRect(0, 0, w, h, 1)
+            surface.SetDrawColor(80, 80, 80)
+            surface.DrawOutlinedRect(0, 0, w, h)
+
+            -- Esquina superior izquierda
+            draw.NoTexture()
+
+            surface.SetDrawColor(90, 90, 90)
+
+            surface.DrawPoly({{
+                x = 0,
+                y = 0
+            }, {
+                x = 26,
+                y = 0
+            }, {
+                x = 0,
+                y = 26
+            }})
 
         end
 
         local Model = vgui.Create("DModelPanel", Card)
-        Model:Dock(FILL)
-        Model:DockMargin(10, 10, 10, 0)
+        Model:SetPos(8, 8)
+        Model:SetSize(220, 92)
 
-        -----------------------------------------------------
-        -- Modelo automático
-        -----------------------------------------------------
+        if item.Preview then
 
-        Model:SetModel(GetModel(item.Class or item.Model))
-        Model:SetFOV(45)
+            Model:SetModel(item.Preview.Model)
+            -----------------------------------------------------
+            -- Datos del SWEP
+            -----------------------------------------------------
+
+            local zoom = item.Preview.Zoom or 1
+
+            Model:SetCamPos(item.Preview.CamPos * zoom)
+            Model:SetLookAt(item.Preview.LookAt)
+            Model:SetFOV(item.Preview.FOV or 45)
+
+        else
+
+            Model:SetModel("models/Items/BoxMRounds.mdl")
+            Model:SetCamPos(Vector(18, 18, 18))
+            Model:SetLookAt(Vector(0, 0, 0))
+            Model:SetFOV(45)
+
+        end
 
         function Model:PostDrawModel(ent)
+
+            if item.Preview then
+                return
+            end
 
             local mn, mx = ent:GetRenderBounds()
 
@@ -436,9 +436,51 @@ SWUI.RegisterPage("store", function(parent)
 
         function Model:LayoutEntity(ent)
 
-            ent:SetAngles(Angle(0, 0, 0))
+            if item.Angle then
+                ent:SetAngles(item.Angle)
+            else
+                ent:SetAngles(angle_zero)
+            end
 
+            local material = item.Material
+
+            if item.Preview and item.Preview.Material and item.Preview.Material ~= "" then
+                material = item.Preview.Material
+            end
+
+            ent:SetSkin(item.Skin or 0)
+
+            if material and material ~= "" then
+                ent:SetMaterial(material)
+            else
+                ent:SetMaterial("")
+            end
+
+            -------------------------------------------------
+            -- Bodygroups
+            -------------------------------------------------
+
+            if item.Bodygroups then
+
+                for id, value in pairs(item.Bodygroups) do
+                    ent:SetBodygroup(id, value)
+                end
+
+            end
+
+            -------------------------------------------------
+            -- SubMaterials
+            -------------------------------------------------
+
+            if item.SubMaterials then
+
+                for id, mat in pairs(item.SubMaterials) do
+                    ent:SetSubMaterial(id, mat)
+                end
+
+            end
         end
+
         local Click = vgui.Create("DButton", Card)
         Click:SetPos(0, 0)
         Click:SetSize(Card:GetWide(), Card:GetTall())
@@ -464,12 +506,14 @@ SWUI.RegisterPage("store", function(parent)
         -----------------------------------------------------
 
         local Price = vgui.Create("DLabel", Card)
-        Price:Dock(BOTTOM)
-        Price:DockMargin(10, 0, 10, 5)
+        Price:Dock(NODOCK)
+        Price:SetPos(10, 120)
+        Price:SetSize(210, 14)
 
         Price:SetTall(18)
         Price:SetFont("SWUI.Small")
         Price:SetTextColor(SWUI.Theme.Accent)
+        Price:SetContentAlignment(4)
 
         Price:SetText(string.Comma(item.Price) .. " créditos")
 
@@ -478,13 +522,14 @@ SWUI.RegisterPage("store", function(parent)
         -----------------------------------------------------
 
         local Name = vgui.Create("DLabel", Card)
-        Name:Dock(BOTTOM)
-        Name:DockMargin(10, 0, 10, 8)
+        Name:Dock(NODOCK)
+        Name:SetPos(10, 104)
+        Name:SetSize(210, 18)
 
         Name:SetTall(22)
-        Name:SetFont("SWUI.Text")
+        Name:SetFont("SWUI.Small")
         Name:SetTextColor(color_white)
-        Name:SetContentAlignment(5)
+        Name:SetContentAlignment(4)
 
         Name:SetText(item.Name)
 
