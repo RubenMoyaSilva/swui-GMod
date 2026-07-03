@@ -56,9 +56,30 @@ SWUI.RegisterPage("store", function(parent)
 
     local Grid = vgui.Create("DIconLayout", Scroll)
     Grid:Dock(TOP)
-
+    Grid:DockMargin(15, 0, 15, 0)
     Grid:SetSpaceX(15)
     Grid:SetSpaceY(15)
+
+    Grid.PerformLayout = function(self)
+
+        DIconLayout.PerformLayout(self)
+
+        local columns = 5
+        local spacing = self:GetSpaceX()
+
+        -- Ancho útil del catálogo
+        local available = Scroll:GetWide() - 30
+
+        -- Restamos los espacios entre columnas
+        local width = math.floor((available - (spacing * (columns - 1))) / columns)
+
+        for _, child in ipairs(self:GetChildren()) do
+            child:SetSize(width, 170)
+        end
+
+        DIconLayout.PerformLayout(self)
+
+    end
 
     ---------------------------------------------------------
     -- Panel derecho
@@ -88,6 +109,8 @@ SWUI.RegisterPage("store", function(parent)
 
     function Icon:LayoutEntity(ent)
 
+        ent:SetPos(vector_origin)
+
         local ang = Angle(0, RealTime() * 20 % 360, 0)
 
         if SelectedItem and SelectedItem.Angle then
@@ -95,6 +118,8 @@ SWUI.RegisterPage("store", function(parent)
         end
 
         ent:SetAngles(ang)
+
+        ent:SetPos(-ent:OBBCenter())
 
         if SelectedItem then
 
@@ -352,7 +377,8 @@ SWUI.RegisterPage("store", function(parent)
 
         local Card = vgui.Create("SWCard", Grid)
 
-        Card:SetSize(235, 140)
+        Card:SetSize(1, 170)
+
         Card:SetTitle("")
         Card:SetCursor("hand")
 
@@ -391,8 +417,8 @@ SWUI.RegisterPage("store", function(parent)
         end
 
         local Model = vgui.Create("DModelPanel", Card)
-        Model:SetPos(8, 8)
-        Model:SetSize(220, 92)
+        Model:SetPos(5, 5)
+        Model:SetSize(250, 130)
 
         if item.Preview then
 
@@ -507,8 +533,8 @@ SWUI.RegisterPage("store", function(parent)
 
         local Price = vgui.Create("DLabel", Card)
         Price:Dock(NODOCK)
-        Price:SetPos(10, 120)
-        Price:SetSize(210, 14)
+        Price:SetPos(10, 135)
+        Price:SetSize(230, 14)
 
         Price:SetTall(18)
         Price:SetFont("SWUI.Small")
@@ -523,8 +549,8 @@ SWUI.RegisterPage("store", function(parent)
 
         local Name = vgui.Create("DLabel", Card)
         Name:Dock(NODOCK)
-        Name:SetPos(10, 104)
-        Name:SetSize(210, 18)
+        Name:SetPos(10, 149)
+        Name:SetSize(230, 18)
 
         Name:SetTall(22)
         Name:SetFont("SWUI.Small")
@@ -553,6 +579,17 @@ SWUI.RegisterPage("store", function(parent)
 
         Grid:InvalidateLayout(true)
         Grid:SizeToChildren(false, true)
+
+        timer.Simple(0, function()
+
+            if not IsValid(Grid) then
+                return
+            end
+
+            Grid:InvalidateLayout(true)
+            Grid:Layout()
+
+        end)
 
     end
 

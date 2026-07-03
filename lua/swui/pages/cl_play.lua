@@ -25,7 +25,7 @@ SWUI.RegisterPage("play", function(parent)
 
     local CurrentFaction = nil
     local CurrentBattalion = nil
-    local SelectedJob = nil
+    local PendingTeamID = nil
 
     ---------------------------------------------------------
     -- Panel izquierdo
@@ -34,8 +34,6 @@ SWUI.RegisterPage("play", function(parent)
     local Left = vgui.Create("SWCard", Content)
     Left:Dock(LEFT)
     Left:SetTitle("DESPLIEGUE")
-
-    ---------------------------------------------------------
 
     local LeftContent = vgui.Create("EditablePanel", Left)
     LeftContent:Dock(FILL)
@@ -300,25 +298,7 @@ SWUI.RegisterPage("play", function(parent)
 
     local function GetBattalion(job)
 
-        local battalion = job.name:match("^%d+%a%a")
-
-        if battalion then
-            return battalion
-        end
-
-        if string.find(job.name, "Cadet") then
-            return "Cadetes"
-        end
-
-        if string.find(job.name, "Guard") then
-            return "Coruscant Guard"
-        end
-
-        if string.find(job.name, "Navy") then
-            return "Navy"
-        end
-
-        return "Otros"
+        return job.batallon or "Otros"
 
     end
 
@@ -562,6 +542,7 @@ SWUI.RegisterPage("play", function(parent)
     SelectJob = function(job)
 
         SelectedJob = job
+        PendingTeamID = job.__TeamID
 
         Name:SetText(job.name or "Desconocido")
 
@@ -577,22 +558,13 @@ SWUI.RegisterPage("play", function(parent)
             Model:SetModel(job.model or LocalPlayer():GetModel())
         end
 
-        local canDeploy = false
+        Deploy:SetVisible(false)
+        Deploy:SetEnabled(false)
 
-        if job.customCheck then
-            local result = job.customCheck(LocalPlayer())
-
-            print("========== CUSTOM CHECK ==========")
-            print("Job:", job.name)
-            print("Resultado:", result)
-            print("Tipo:", type(result))
-            print("==================================")
-
-            canDeploy = (result == true)
-        end
-
-        Deploy:SetVisible(canDeploy)
-        Deploy:SetEnabled(canDeploy)
+        net.Start("SWUI.CheckJobAccess")
+            net.WriteUInt(job.__TeamID, 16)
+        net.SendToServer()
+    
     end
 
     ---------------------------------------------------------
@@ -634,7 +606,7 @@ SWUI.RegisterPage("play", function(parent)
         -- Crear tarjetas
         -----------------------------------------------------
 
-        for _, job in ipairs(RPExtraTeams) do
+        for teamID, job in ipairs(RPExtraTeams) do
 
             if job.category ~= CurrentFaction then
                 continue
@@ -654,6 +626,7 @@ SWUI.RegisterPage("play", function(parent)
 
                 function()
 
+                    job.__TeamID = teamID
                     SelectJob(job)
 
                 end
@@ -690,6 +663,17 @@ SWUI.RegisterPage("play", function(parent)
     ---------------------------------------------------------
     -- Inicio
     ---------------------------------------------------------
+    net.Receive("SWUI.JobAccessResult", function()
+
+        local teamID = net.ReadUInt(16)
+        local canAccess = net.ReadBool()
+
+        if PendingTeamID ~= teamID then return end
+
+        Deploy:SetVisible(canAccess)
+        Deploy:SetEnabled(canAccess)
+
+    end)
 
     ShowFactions()
 
