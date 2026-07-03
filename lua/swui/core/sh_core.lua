@@ -8,7 +8,7 @@
 SWUI = SWUI or {}
 
 SWUI.Name = "Proyecto Kamino UI"
-SWUI.Version = "0.2.15"
+SWUI.Version = "0.2.16"
 
 SWUI.Config = SWUI.Config or {}
 SWUI.Theme = SWUI.Theme or {}

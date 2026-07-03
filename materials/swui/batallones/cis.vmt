@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+    "$basetexture" "swui/batallones/cis"
+    "$translucent" "1"
+    "$vertexcolor" "1"
+    "$vertexalpha" "1"
+}

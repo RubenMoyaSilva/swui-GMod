@@ -216,6 +216,11 @@ SWUI.RegisterPage("play", function(parent)
     local Grid = vgui.Create("DIconLayout", Scroll)
 
     Grid:Dock(TOP)
+    Grid:DockMargin(0,0,0,10)
+
+    function Grid:Think()
+        self:SetWide(Scroll:GetWide())
+    end
     Grid:SetSpaceX(10)
     Grid:SetSpaceY(20)
     Grid:DockMargin(0,0,0,10)
@@ -314,11 +319,17 @@ SWUI.RegisterPage("play", function(parent)
     -- Crear tarjeta
     ---------------------------------------------------------
 
-    local function CreateCard(parent, title, image, callback)
+    local function CreateCard(parent, title, image, model, callback, fill)
 
         local Card = vgui.Create("SWCard", parent)
-        Card:SetSize(260, 250)
+        print("CreateCard:", title)
         Card:SetTitle("")
+
+            if fill then
+                Card:Dock(FILL)
+            else
+                Card:SetSize(260, 250)
+            end
 
         -----------------------------------------------------
         -- Imagen
@@ -328,35 +339,57 @@ SWUI.RegisterPage("play", function(parent)
         Preview:Dock(FILL)
         Preview:DockMargin(10,10,10,10)
 
-        local Mat = image and Material(image) or nil
+        Preview.Paint = nil
 
-        Preview.Paint = function(self,w,h)
+        if model then
 
-            if Mat and not Mat:IsError() then
+            local mdl = istable(model) and model[1] or model
 
-                surface.SetDrawColor(color_white)
-                surface.SetMaterial(Mat)
+            local Model = vgui.Create("DModelPanel", Preview)
+            Model:Dock(FILL)
+            Model:SetModel(mdl)
 
-                local Size = math.min(w - 20, h - 40)
+            Model:SetFOV(22)
+            Model:SetCamPos(Vector(90, 0, 38))
+            Model:SetLookAt(Vector(0, 0, 67))
 
-                surface.DrawTexturedRect(
-                    (w - Size) * .5,
-                    10,
-                    Size,
-                    Size
-                )
+            function Model:LayoutEntity(ent)
+                -- Sin rotación
+            end
 
-            else
+        else
 
-                draw.SimpleText(
-                    "SIN IMAGEN",
-                    "SWUI.Small",
-                    w * .5,
-                    h * .5,
-                    SWUI.Theme.TextSecondary,
-                    TEXT_ALIGN_CENTER,
-                    TEXT_ALIGN_CENTER
-                )
+            local Mat = image and Material(image) or nil
+
+            Preview.Paint = function(self,w,h)
+
+                if Mat and not Mat:IsError() then
+
+                    surface.SetDrawColor(color_white)
+                    surface.SetMaterial(Mat)
+
+                    local Size = math.min(w - 20, h - 40)
+
+                    surface.DrawTexturedRect(
+                        (w - Size) * .5,
+                        10,
+                        Size,
+                        Size
+                    )
+
+                else
+
+                    draw.SimpleText(
+                        "SIN IMAGEN",
+                        "SWUI.Small",
+                        w * .5,
+                        h * .5,
+                        SWUI.Theme.TextSecondary,
+                        TEXT_ALIGN_CENTER,
+                        TEXT_ALIGN_CENTER
+                    )
+
+                end
 
             end
 
@@ -393,57 +426,67 @@ SWUI.RegisterPage("play", function(parent)
 
         Breadcrumb:SetText("Selecciona una facción")
 
-        local Grid = CreateGrid()
-        Grid.PerformLayout = function(self)
-            DIconLayout.PerformLayout(self)
+        local Container = vgui.Create("EditablePanel", Browser)
+        Container:Dock(FILL)
+        Container.Paint = nil
 
-            local children = self:GetChildren()
-            if #children ~= 2 then return end
+        local LeftCard = vgui.Create("EditablePanel", Container)
+        LeftCard:Dock(LEFT)
+        LeftCard:SetWide(0)
+        LeftCard.Paint = nil
 
-            local spacing = self.m_iSpaceX or 10
-            local cardW = (self:GetWide() - spacing) / 2
-
-            children[1]:SetWide(cardW)
-            children[2]:SetWide(cardW)
+        local RightCard = vgui.Create("EditablePanel", Container)
+        RightCard:Dock(FILL)
+        RightCard:DockMargin(10, 0, 0, 0)
+        RightCard.Paint = nil
+        Container.PerformLayout = function(self, w, h)
+            LeftCard:SetWide((w - 10) * 0.5)
         end
 
         -----------------------------------------------------
         -- República
         -----------------------------------------------------
 
-        CreateCard(
+        local Republic = CreateCard(
 
-            Grid,
+            LeftCard,
 
             "REPÚBLICA",
 
-            "swui/factions/republic",
+            "swui/batallones/republica",
+
+            nil,
 
             function()
 
                 ShowBattalions("REPUBLIC")
 
-            end
+            end,
+
+            true
 
         )
-
         -----------------------------------------------------
         -- CIS
         -----------------------------------------------------
 
-        CreateCard(
-
-            Grid,
+        local CIS = CreateCard(
+            
+            RightCard,
 
             "CIS",
 
-            "swui/factions/cis",
+            "swui/batallones/cis",
+
+            nil,
 
             function()
 
                 ShowBattalions("CIS")
 
-            end
+            end,
+
+            true
 
         )
 
@@ -454,7 +497,6 @@ SWUI.RegisterPage("play", function(parent)
     ---------------------------------------------------------
 
     ShowBattalions = function(faction)
-
         CurrentFaction = faction
         CurrentBattalion = nil
         SelectedJob = nil
@@ -462,8 +504,6 @@ SWUI.RegisterPage("play", function(parent)
         ClearBrowser()
 
         Breadcrumb:SetText(faction)
-
-        local Grid = CreateGrid()
 
         -----------------------------------------------------
         -- Volver
@@ -476,7 +516,12 @@ SWUI.RegisterPage("play", function(parent)
 
         Back.DoClick = ShowFactions
 
-        Grid:DockMargin(0,50,0,0)
+        -----------------------------------------------------
+        -- Cuadrícula
+        -----------------------------------------------------
+
+        local Grid = CreateGrid()
+        Grid:DockMargin(0,10,0,0)
 
         -----------------------------------------------------
         -- Detectar batallones
@@ -522,7 +567,9 @@ SWUI.RegisterPage("play", function(parent)
 
                 Battalion,
 
-                "swui/battalions/" .. string.lower(Battalion),
+                "swui/batallones/" .. string.lower(Battalion),
+
+                nil,
 
                 function()
 
@@ -535,7 +582,8 @@ SWUI.RegisterPage("play", function(parent)
         end
 
     end
-        ---------------------------------------------------------
+    
+    ---------------------------------------------------------
     -- Seleccionar trabajo
     ---------------------------------------------------------
 
@@ -623,6 +671,7 @@ SWUI.RegisterPage("play", function(parent)
                 job.name,
 
                 nil,
+                job.model,
 
                 function()
 

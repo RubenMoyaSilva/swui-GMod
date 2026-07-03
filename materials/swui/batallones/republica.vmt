@@ -1,0 +1,7 @@
+"UnlitGeneric"
+{
+    "$basetexture" "swui/batallones/republica"
+    "$translucent" "1"
+    "$vertexcolor" "1"
+    "$vertexalpha" "1"
+}
