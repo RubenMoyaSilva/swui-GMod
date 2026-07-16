@@ -11,7 +11,10 @@ local openedFromEscape = false
 
 hook.Add("OnPauseMenuShow", "SWUI.OverrideEscape", function()
 
-    if SWUI.IsOpen() then return false end
+    if SWUI.IsOpen() then
+        SWUI.Close()
+        return false
+    end
 
     openedFromEscape = true
 

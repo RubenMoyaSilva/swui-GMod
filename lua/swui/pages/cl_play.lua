@@ -202,8 +202,12 @@ SWUI.RegisterPage("play", function(parent)
 
     local function ClearBrowser()
 
+        if not IsValid(Browser) then return end
+
         for _, pnl in ipairs(Browser:GetChildren()) do
-            pnl:Remove()
+            if IsValid(pnl) then
+                pnl:Remove()
+            end
         end
 
     end
@@ -319,17 +323,13 @@ SWUI.RegisterPage("play", function(parent)
     -- Crear tarjeta
     ---------------------------------------------------------
 
-    local function CreateCard(parent, title, image, model, callback, fill)
+    local function CreateCard(parent, title, image, model, callback)
 
         local Card = vgui.Create("SWCard", parent)
         print("CreateCard:", title)
         Card:SetTitle("")
 
-            if fill then
-                Card:Dock(FILL)
-            else
-                Card:SetSize(260, 250)
-            end
+        Card:SetSize(260, 250)
 
         -----------------------------------------------------
         -- Imagen
@@ -337,7 +337,7 @@ SWUI.RegisterPage("play", function(parent)
 
         local Preview = vgui.Create("DPanel", Card)
         Preview:Dock(FILL)
-        Preview:DockMargin(10,10,10,10)
+        Preview:DockMargin(20,20,20,10)
 
         Preview.Paint = nil
 
@@ -368,11 +368,11 @@ SWUI.RegisterPage("play", function(parent)
                     surface.SetDrawColor(color_white)
                     surface.SetMaterial(Mat)
 
-                    local Size = math.min(w - 20, h - 40)
+                    local Size = math.min(w - 40, h - 70) + 10
 
                     surface.DrawTexturedRect(
-                        (w - Size) * .5,
-                        10,
+                        (w - Size) * 0.5,
+                        ((h - Size) * 0.5) + 15,
                         Size,
                         Size
                     )
@@ -402,7 +402,7 @@ SWUI.RegisterPage("play", function(parent)
         local Button = vgui.Create("SWButton", Card)
         Button:Dock(BOTTOM)
         Button:DockMargin(10,0,10,10)
-        Button:SetTall(38)
+        Button:SetTall(34)
 
         Button:SetButtonText(title)
 
@@ -426,22 +426,8 @@ SWUI.RegisterPage("play", function(parent)
 
         Breadcrumb:SetText("Selecciona una facción")
 
-        local Container = vgui.Create("EditablePanel", Browser)
-        Container:Dock(FILL)
-        Container.Paint = nil
-
-        local LeftCard = vgui.Create("EditablePanel", Container)
-        LeftCard:Dock(LEFT)
-        LeftCard:SetWide(0)
-        LeftCard.Paint = nil
-
-        local RightCard = vgui.Create("EditablePanel", Container)
-        RightCard:Dock(FILL)
-        RightCard:DockMargin(10, 0, 0, 0)
-        RightCard.Paint = nil
-        Container.PerformLayout = function(self, w, h)
-            LeftCard:SetWide((w - 10) * 0.5)
-        end
+        local Grid = CreateGrid()
+        Grid:DockMargin(0,10,0,0)
 
         -----------------------------------------------------
         -- República
@@ -449,7 +435,7 @@ SWUI.RegisterPage("play", function(parent)
 
         local Republic = CreateCard(
 
-            LeftCard,
+            Grid,
 
             "REPÚBLICA",
 
@@ -461,9 +447,7 @@ SWUI.RegisterPage("play", function(parent)
 
                 ShowBattalions("REPUBLIC")
 
-            end,
-
-            true
+            end
 
         )
         -----------------------------------------------------
@@ -472,7 +456,7 @@ SWUI.RegisterPage("play", function(parent)
 
         local CIS = CreateCard(
             
-            RightCard,
+            Grid,
 
             "CIS",
 
@@ -484,20 +468,64 @@ SWUI.RegisterPage("play", function(parent)
 
                 ShowBattalions("CIS")
 
-            end,
-
-            true
+            end
 
         )
 
-    end
 
+    -----------------------------------------------------
+    -- Cazarrecompensas
+    -----------------------------------------------------
+
+        local Cazarecompensas = CreateCard(
+
+            Grid,
+
+            "CAZARRECOMPENSAS",
+
+            "swui/batallones/Cazarrecompensas",
+
+            nil,
+
+            function()
+
+                ShowBattalions("Cazarecompensas")
+
+            end
+
+
+        )
+
+        timer.Simple(0, function()
+
+            if not IsValid(Grid) then return end
+
+            local margin = 10
+            local cols = 3
+
+            local w = math.floor((Grid:GetWide() - (margin * (cols - 1))) / cols)
+
+            Republic:SetWide(w)
+            Republic:SetTall(240)
+
+            CIS:SetWide(w)
+            CIS:SetTall(240)
+
+            Cazarecompensas:SetWide(w)
+            Cazarecompensas:SetTall(240)
+
+            Grid:Layout()
+
+        end)
+
+    end
     ---------------------------------------------------------
     -- Mostrar batallones
     ---------------------------------------------------------
 
     ShowBattalions = function(faction)
         CurrentFaction = faction
+        print("RPExtraTeams:", RPExtraTeams, #RPExtraTeams)
         CurrentBattalion = nil
         SelectedJob = nil
 
@@ -530,6 +558,8 @@ SWUI.RegisterPage("play", function(parent)
         local Battalions = {}
 
         for _, job in ipairs(RPExtraTeams) do
+            print("JOB:", job.name, "CATEGORY:", job.category)
+            print("Buscando:", faction, "Encontrado:", job.category)
 
             if job.category ~= faction then
                 continue

@@ -48,3 +48,9 @@ surface.CreateFont("SWUI.Button", {
     weight = 600,
     antialias = true
 })
+surface.CreateFont("SWUI.HUD", {
+    font = "Bahnschrift",
+    size = 17,
+    weight = 600,
+    antialias = true
+})
